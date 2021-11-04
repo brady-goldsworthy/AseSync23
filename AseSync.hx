@@ -16,8 +16,11 @@ class AseSync {
 	public static var projectData:YyProject = null;
 	public static var watchDir:String;
 	public static var asepritePath:String = null;
-	public static var prefix:String = "Sprites";
+	public static var prefix:String = "";
 	public static var epsilon:Float = 0.05;
+	public static var gmSpritePrefix:String = "spr_";
+	public static var ignoreStrings:Array<String> = ["dodles", "mockup", "ignore", "old", "xx"];
+	public static var updateOnly:Bool = true;
 	
 	public static var baseSpriteName:String = "spr_asebase";
 	public static var baseSpriteText:String;
@@ -148,7 +151,7 @@ class AseSync {
 				AseConfig.save();
 			}
 		}
-		
+
 		//trace("hi!", watchDir);
 		
 		var baseSpritePath = '$projectDir/sprites/$baseSpriteName/$baseSpriteName.yy';
@@ -181,6 +184,8 @@ class AseSync {
 		baseSpriteFrameText = YyJson.stringify(baseSpriteData.frames[0]);
 		baseSpriteKeyFrameText = YyJson.stringify(baseSpriteData.sequence.tracks[0].keyframes.Keyframes[0]);
 		
+		
+
 		if (syncNow) {
 			Sys.println("Running force-sync...");
 			function syncRec(dir:String) {

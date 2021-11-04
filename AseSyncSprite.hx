@@ -7,6 +7,7 @@ import sys.FileSystem;
 import sys.io.File;
 import tools.FileTools;
 import tools.MathTools;
+using StringTools;
 
 /**
  * ...
@@ -31,17 +32,28 @@ class AseSyncSprite {
 		}
 		return result;
 	}
+	
 	public static function sync(asePath:String) {
-		var name = (new Path(asePath)).file;
-		Sys.println('Syncing $name ($asePath)...');
+		var fileName = (new Path(asePath)).file;
+		
+		if (fileNameIsInIgnoreList(fileName)) return;
+
+		var name = gmSpritePrefix + fileName;
 		var yyDir = '$projectDir/sprites/$name';
 		var yyPath = '$yyDir/$name.yy';
 		var yyRel = 'sprites/$name/$name.yy';
 		var spr:YySprite;
 		var save = false;
 		if (FileSystem.exists(yyPath)) {
+			Sys.println('Syncing existing sprite: $name ($asePath)...');
 			spr = YyJson.parse(File.getContent(yyPath));
 		} else {
+			if (updateOnly) {
+				Sys.println('Not creating new GM Asset for this sprite: ($name), due to updateOnly flag being set to true');
+				return;
+			}
+			
+			Sys.println('Creating new GM Asset for sprite: $name ($asePath)...');
 			save = true;
 			spr = YyJson.parse(baseSpriteText);
 			spr.frames = [];
@@ -226,6 +238,17 @@ class AseSyncSprite {
 		if (save) {
 			File.saveContent(yyPath, YyJson.stringify(spr));
 		}
+	}
+
+	static function fileNameIsInIgnoreList(fileName:String):Bool {
+		for (ignoreString in ignoreStrings) {
+			if (StringTools.contains(fileName, ignoreString)) {
+				Sys.println('FileName: ($fileName) was ignored due to including: ($ignoreString)');
+				return true;
+			}
+		}
+
+		return false;
 	}
 	
 }
